@@ -1,17 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""
-    @File     utils.py
-    @Author   WZX
-    @Date     2020/12/17 15:59
-    @Describe 
-    @Version  1.0
-"""
-# from tensorflow import keras
-# from tensorflow.python.keras import backend as K
-# from tensorflow.python.keras.layers import Masking
-
 import keras
 from keras import backend as K
 from keras.layers import Masking

@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 from scipy import interp
 import matplotlib.pyplot as plt
+from unittest import mock
 
 import keras
 from keras import backend as K
@@ -38,7 +39,7 @@ from Data_helper import LoadDataTrial
 from utils.layers import ExternalMasking
 from utils.grud_layers import GRUD, Bidirectional_for_GRUD
 from BuildModel import LoadModel
-from utils.attention_function import attention_3d_block_spatial as PreAttentionSpatial
+from utils.pre_attention import attention_3d_block_spatial as PreAttentionSpatial
 
 # %matplotlib inline
 # %config InlineBackend.figure_format = 'svg'
@@ -54,7 +55,7 @@ arg_parser.add_argument('--dataset_name', default='phase_viii',
                          help='The data files should be saved in [working_path]/data/[dataset_name] directory.')
 arg_parser.add_argument('--fold', type=int, default=0, 
                          help='the fold data taken to use, there are 5 folds or 10 folds')
-arg_parser.add_argument('--label', default=2, type=int, choices=[-1,0,1,2,3,4],
+arg_parser.add_argument('--label', default=1, type=int, choices=[-1,0,1,2,3,4],
                          help='the label type')
 
 ## model
@@ -92,12 +93,12 @@ if not os.path.exists(output_path):
     os.makedirs(output_path)
 
 T = time.strftime("%Y%m%d%H%M%S", time.localtime())
-LABEL_DICT = {'-1':'flatten multi-classification', 
+LABEL_DICT = {'-1': 'flatten multi-classification', 
               '0': 'infectious and non-infectious', 
-              '1':'bacterial, viral and others', 
-              '2':'NIID and tumor', 
+              '1': 'bacterial, viral and others', 
+              '2': 'NIID and tumor', 
               '3': 'AD and AID', 
-              '4':'HM and SM'}
+              '4': 'HM and SM'}
 # Load the data
 dataset = LoadDataTrial(data_path=os.path.join('.', 'data', 'phase_viii', '72hours', 'processed', 'raw/data4hc_v20220401'), 
                         model_type=ARGS.model_type,
@@ -139,9 +140,15 @@ class RocAucMetricCallback(keras.callbacks.Callback):
         logs['roc_auc_val'] = float('-inf')
         x_val = [self.validation_data[0], self.validation_data[1], self.validation_data[2]]
         y_val = np.argmax(self.validation_data[3], axis=1)
+        # with mock.patch("sklearn.utils.validation._assert_all_finite"):
+        # logs['roc_auc_val'] = roc_auc_score(y_val,
+                                            # self.model.predict(x_val, batch_size=self.predict_batch_size)[:,1])
         logs['roc_auc_val'] = roc_auc_score(y_val,
-                                            self.model.predict(x_val, batch_size=self.predict_batch_size)[:,1])
+                                            self.model.predict(x_val, batch_size=self.predict_batch_size),
+                                            multi_class='ovo', 
+                                            average='macro')
         print(' - ---------------------------------------------------------------------------val_auc: %.4f' % (logs['roc_auc_val']))
+
 
 def build_model(trial):
 
@@ -224,6 +231,7 @@ class Objective():
                     verbose=2,
                     class_weight="auto",
                     callbacks=[RocAucMetricCallback(),
+                        TFKerasPruningCallback(trial, "roc_auc_val"), # val_accuracy roc_auc_val
                         EarlyStopping(monitor='roc_auc_val', mode='max', patience=10, restore_best_weights=True),
                         ReduceLROnPlateau(monitor='roc_auc_val',
                                                 factor=0.1,
@@ -239,7 +247,8 @@ class Objective():
         # Evaluate the model accuracy on the validation set.
         # score = model.evaluate(X_validation, y_validation, verbose=0)
         # return score[1]
-        auc = roc_auc_score(y_validation_1d, model.predict(X_validation)[:,1])
+        # auc = roc_auc_score(y_validation_1d, model.predict(X_validation)[:,1])
+        auc = roc_auc_score(y_validation_1d, model.predict(X_validation), multi_class='ovo', average='macro')
         return auc
 
     def callback(self, study, trial):
@@ -257,20 +266,26 @@ if __name__ == '__main__':
             }
     )
     print("[Info] The sampler of optuna is {0}!".format('TPESampler'))
-    study = optuna.create_study(direction='maximize', 
-                                storage=storage,
-                                sampler= optuna.samplers.TPESampler(),
-                                study_name='{0}({1})_{2}'.format(ARGS.model_type, LABEL_DICT[str(ARGS.label)], T))
     # study = optuna.create_study(direction='maximize', 
     #                             storage=storage,
     #                             sampler= optuna.samplers.TPESampler(),
-    #                             load_if_exists=True,
-    #                             study_name='GRUD(NIID and tumor)_20220614100424')
+    #                             pruner=optuna.pruners.MedianPruner(),
+    #                             study_name='{0}({1})_{2}'.format(ARGS.model_type, LABEL_DICT[str(ARGS.label)], T))
+    study = optuna.create_study(direction='maximize', 
+                                storage=storage,
+                                sampler= optuna.samplers.TPESampler(),
+                                pruner=optuna.pruners.MedianPruner(),
+                                load_if_exists=True,
+                                study_name='GRUD(bacterial, viral and others)_20220626093819')
     study.optimize(objective, 
-                   n_trials=40,
+                   n_trials=10,
                    callbacks=[objective.callback])
+    pruned_trials = study.get_trials(deepcopy=False, states=[TrialState.PRUNED])
+    complete_trials = study.get_trials(deepcopy=False, states=[TrialState.COMPLETE])
 
     print("Number of finished trials: {}".format(len(study.trials)))
+    print("  Number of pruned trials: ", len(pruned_trials))
+    print("  Number of complete trials: ", len(complete_trials))
     print("Best trial:")
     trial = study.best_trial
     print("  Value: {}".format(trial.value))
@@ -290,7 +305,7 @@ if __name__ == '__main__':
 
     fig = plot_intermediate_values(study)
     fig.write_image(os.path.join(output_path, "plot_intermediate_values({}).png".format(LABEL_DICT[str(ARGS.label)])))
-    
+
     # Get the optimal hyperparameters and save
     best_hps_dict = {'best_hps': trial.params}
     np.save(os.path.join(model_path, 'BestHPs({}).npy'.format(LABEL_DICT[str(ARGS.label)])), best_hps_dict)

@@ -1,0 +1,15 @@
+# coding = utf-8
+
+# """
+# @author: wang zhixiao
+# @time  : 2020-12-07 11:36
+# @detail: 各家医院数据库连接的用户、密码、IP、端口和SID信息字典
+# """
+
+# 实验室服务器数据库
+fuo:
+  user: FUO
+  password: FUO
+  ip: xx.xx.xx.xx
+  port: 1521
+  sid: orcl

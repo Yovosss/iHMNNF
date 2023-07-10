@@ -270,7 +270,7 @@ def objective(trial):
 
     # auc = roc_auc_score(y_validation, model.predict_proba(X_validation)[:,1])
 
-    auc = roc_auc_score(y_validation, model.predict_proba(X_validation), multi_class='ovr')
+    auc = roc_auc_score(y_validation, model.predict_proba(X_validation), multi_class='ovo')
 
     return auc
 

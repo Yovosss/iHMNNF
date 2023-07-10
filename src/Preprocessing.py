@@ -4,17 +4,6 @@
 """
 @author: wang zhixiao
 @time  : 2020-12-10 11:36
-@detail: (NoDup)对首次病程记录文本数据进行去重||
-         (FirstRecordSplit)对首次病程记录文本数据做初步切分||
-         (HeightAndWeight)对护理生命体征内的身高体重更新到患者就诊表||
-         (LabelProcess)对标签数据进行处理||
-         (SymAndChiefcom)对结构化之后的症状与主诉数据进行再处理与合并
-         (FeatureAggre)读取个人史、既往史、主诉与症状合并、就诊、化验数据进行合并与转置
-         "======================================================================="
-         (LabelComplement)提取condition表的diag_append字段内的指示性信息，对发热患者的标签进行补全
-         (LabelCV)依据药物类型提取可能的标签，并对source_i, source_ii, source_liu和source_iii进行交叉合并
-         (MeasurementProcess)对化验数据内的分类变量与数值变量的异常值进行处理
-         (SymAndChiefcomV2)二次对症状和主诉做处理
 """
 
 import re

@@ -56,18 +56,6 @@ def get_data_recurrent(n, time_steps, input_dim, attention_column=10):
     x[:, attention_column, :] = np.tile(y[:], (1, input_dim))
     return x, y
 
-def attention_3d_block_temporal(inputs, TIME_STEPS):
-    """
-    inputs.shape = (batch_size, time_steps, input_dim)
-    """ 
-    input_dim = int(inputs.shape[2])
-    a = Permute((2, 1))(inputs)
-    a = Reshape((input_dim, TIME_STEPS))(a)
-    a = Dense(TIME_STEPS, activation='softmax')(a)
-    a_probs = Permute((2, 1), name='attention_vec')(a)
-    output_attention_mul = multiply([inputs, a_probs])
-    return output_attention_mul
-
 def attention_3d_block_spatial(inputs, FEATURES):
     """
     inputs.shape = (batch_size, time_steps, input_dim)
@@ -79,31 +67,6 @@ def attention_3d_block_spatial(inputs, FEATURES):
     output_attention_mul = multiply([inputs, a])
     return output_attention_mul
 
-def attention_3d_block_plus(inputs, FEATURES, TIME_STEPS):
-    a = Permute((2, 1))(inputs)
-    a = Reshape((FEATURES, TIME_STEPS))(a)
-    a = Dense(TIME_STEPS, activation='softmax')(a)
-    a_probs = Permute((2, 1), name='attention_vec_time')(a)
-
-    b = Permute((1, 2))(inputs) 
-    b = Reshape((TIME_STEPS, FEATURES))(b) 
-    b_probs = Dense(FEATURES, activation='softmax', name='attention_vec_spatial')(b)
-
-    output_attention_mul = multiply([inputs, a_probs, b_probs])
-
-    return output_attention_mul
-
-def attention_3d_block_flatten(inputs, TIME_STEPS):
-    """
-    inputs.shape = (batch_size, time_steps, input_dim)
-    """ 
-    input_dim = int(inputs.shape[2])
-    a = Flatten()(inputs)
-    a = Dense(TIME_STEPS*input_dim, activation='softmax')(a)
-    a = Reshape((input_dim, TIME_STEPS))(a)
-    a_probs = Permute((2, 1), name='attention_vec')(a)
-    output_attention_mul = multiply([inputs, a_probs])
-    return output_attention_mul
 
 
 

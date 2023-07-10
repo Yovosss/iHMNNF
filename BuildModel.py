@@ -1,29 +1,5 @@
 from __future__ import absolute_import, division, print_function
 
-# import os
-# import numpy as np
-# import keras_tuner as kt
-# from keras_tuner import HyperModel
-
-# import tensorflow as tf
-# from tensorflow import keras
-# from tensorflow.keras import backend as K
-# from tensorflow.keras import regularizers
-# from tensorflow.keras.regularizers import l2
-# from tensorflow.keras.utils import plot_model
-# from tensorflow.python.keras.layers.recurrent import GRU
-# from tensorflow.keras.callbacks import ModelCheckpoint
-# from tensorflow.python.keras.layers.wrappers import Bidirectional
-# from tensorflow.keras.models import Sequential, Model, load_model
-# from tensorflow.python.keras.utils.generic_utils import custom_object_scope
-# from tensorflow.python.keras.layers.normalization import BatchNormalization
-# from tensorflow.python.keras.utils.generic_utils import custom_object_scope
-# from tensorflow.keras.layers import Dense, Input, Flatten, Reshape, Embedding, Concatenate, Dropout, Bidirectional, Activation, Masking, Lambda
-# from tensorflow.keras import optimizers
-
-# from utils.layers import ExternalMasking
-# from utils.grud_layers import Bidirectional_for_GRUD, GRUD
-
 import os
 import keras
 import numpy as np

@@ -11,25 +11,19 @@ import matplotlib.pyplot as plt
 
 import keras
 from keras import backend as K
-from keras.backend import clear_session
 from keras import regularizers 
-from keras import metrics
 from keras.models import Sequential
 from keras.layers import Dense, Input, Dropout, Activation, BatchNormalization, InputLayer
 from keras.callbacks import EarlyStopping
 from keras.utils.vis_utils import plot_model
 from keras.utils.np_utils import to_categorical
-from focal_loss import SparseCategoricalFocalLoss
 
 import optuna
 from optuna.integration import TFKerasPruningCallback
 from optuna.trial import TrialState
-from optuna.samplers import RandomSampler
 from optuna.visualization import plot_intermediate_values
 from optuna.visualization import plot_optimization_history
 from optuna.visualization import plot_param_importances
-from optuna.visualization import plot_contour
-from optuna.visualization import plot_parallel_coordinate
 from optuna.visualization import plot_slice
 
 from sklearn.preprocessing import label_binarize

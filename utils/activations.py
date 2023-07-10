@@ -1,9 +1,5 @@
 from __future__ import absolute_import, division, print_function
 
-# from tensorflow.python.keras import activations
-# from tensorflow.python.keras import backend as K
-# from tensorflow.keras.utils import custom_object_scope
-
 from keras import activations
 from keras import backend as K
 from keras.utils.generic_utils import custom_object_scope
