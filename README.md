@@ -170,3 +170,13 @@ This part we will record all of the experiments we have conducted. The main focu
     epochs|100
     batch size|32
     optuna trial|100
+
+
+## ***3. ENVIRONMENT***
+The main environment configuration can be seen below:
+```
+conda env update -n iHMNNF -f environment.yml
+source activate iHMNNF
+pip install -e .
+```
+there may be some conflicts that need to be manually fixed.
