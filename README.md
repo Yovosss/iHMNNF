@@ -2,6 +2,8 @@
 
 This repository implements the models for paper '[Integrating Medical Domain Knowledge for Early Diagnosis of Fever of Unknown Origin: An Interpretable Hierarchical Multimodal Neural Network Approach]'.
 
+There are still many changes that need to be updated, please wait......
+
 ## ***1. DATA PREPARATION***
 
 ### ***1.1 Data Source and Storage***
